@@ -306,16 +306,6 @@
         </div>
     </div>
 
-    <!-- Music Player Widget -->
-    <div class="fixed bottom-4 right-4 z-40 bg-stone-900/90 border border-amber-500/30 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex items-center gap-3">
-        <button id="music-btn" class="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center hover:bg-amber-500 transition-colors">
-            ▶️
-        </button>
-        <div class="text-xs">
-            <span class="block font-semibold text-amber-200">Bizim Şarkımız 🎵</span>
-            <span id="music-status" class="text-amber-400/70">Müziği Başlat</span>
-        </div>
-    </div>
 
     <script>
         // Counter logic
@@ -485,54 +475,6 @@
         const musicBtn = document.getElementById('music-btn');
         const musicStatus = document.getElementById('music-status');
 
-        function playRomanticMelody() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            if (isPlaying) {
-                audioCtx.suspend();
-                isPlaying = false;
-                if (musicBtn) musicBtn.innerText = '▶️';
-                if (musicStatus) musicStatus.innerText = 'Müziği Başlat';
-                return;
-            }
-
-            audioCtx.resume();
-            isPlaying = true;
-            if (musicBtn) musicBtn.innerText = '⏸️';
-            if (musicStatus) musicStatus.innerText = 'Müzik Çalıyor ❤️';
-
-            // Simple ambient melody loop
-            const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23]; // C4, E4, G4, C5, A4, F4
-            let noteIdx = 0;
-
-            function playNote() {
-                if (!isPlaying) return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(notes[noteIdx], audioCtx.currentTime);
-
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 2.5);
-
-                noteIdx = (noteIdx + 1) % notes.length;
-                setTimeout(playNote, 1200);
-            }
-            playNote();
-        }
-
-        if (musicBtn) {
-            musicBtn.addEventListener('click', playRomanticMelody);
-        }
     </script>
 </body>
 </html>
