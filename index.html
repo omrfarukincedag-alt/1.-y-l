@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanışmamızın 1. Yılı Kutlu Olsun ❤️</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Great+Vibes&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #180d07 0%, #2e160a 40%, #150a04 100%);
+            color: #fef3c7;
+            overflow-x: hidden;
+            transition: background 1.5s ease, color 1.2s ease;
+            min-height: 100vh;
+        }
+
+        .font-romantic { font-family: 'Great Vibes', cursive; }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+        .font-serif-title { font-family: 'Playfair Display', serif; }
+
+        #background-five {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #background-five span {
+            color: rgba(245, 158, 11, 0.42);
+            font-size: min(160vw, 95vh, 90rem);
+            font-weight: 700;
+            line-height: 1;
+            transform: translate(-8vw, -18vh) rotate(-30deg);
+            -webkit-text-stroke: 1px rgba(120, 53, 15, 0.45);
+            text-shadow: 0 0 42px rgba(245, 158, 11, 0.28);
+        }
+
+        /* Canvas for falling leaves / petals */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Polaroid Styling */
+        .polaroid {
+            background: #ffffff;
+            color: #1c1917;
+            padding: 12px 12px 24px 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            position: relative;
+        }
+
+        /* Tape effect on top of polaroids */
+        .polaroid::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 22px;
+            background: rgba(254, 243, 199, 0.5);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+
+        /* Letter Container */
+        .letter-card {
+            background: rgba(30, 16, 9, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            transition: all 1.2s ease;
+        }
+
+        /* FLOWER THEME TRANSITION */
+        body.flower-theme {
+            background: linear-gradient(135deg, #2c0818 0%, #4a102a 40%, #1a030f 100%) !important;
+            color: #ffe4e6 !important;
+        }
+
+        body.flower-theme .letter-card {
+            background: rgba(45, 12, 28, 0.88) !important;
+            border-color: rgba(244, 63, 94, 0.4) !important;
+            box-shadow: 0 25px 60px rgba(159, 18, 57, 0.5) !important;
+        }
+
+        body.flower-theme .glow-text {
+            text-shadow: 0 0 25px rgba(251, 113, 133, 0.8) !important;
+        }
+
+        .flower-bloom {
+            animation: bloomPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes bloomPop {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #120a05; }
+        ::-webkit-scrollbar-thumb { background: #78350f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+    </style>
+</head>
+<body class="relative min-h-screen pb-20">
+
+    <div id="background-five" aria-hidden="true"><span class="font-serif-title">5</span></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <header class="pt-12 pb-8 text-center px-4 relative z-20">
+        <div class="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm font-semibold tracking-wide mb-4 animate-pulse">
+            ✨ Tanışmamızın 1. Yılı Kutlu Olsun ✨
+        </div>
+        <h1 class="text-4xl md:text-6xl font-serif-title font-bold text-amber-200 glow-text mb-2 tracking-wide">
+            Bizim Hikayemiz ❤️
+        </h1>
+        <p class="font-handwriting text-2xl md:text-3xl text-amber-300/80">
+            "İyi ki dedirten, mutluluk dolu 365 gün..."
+        </p>
+
+        <!-- Live Anniversary Counter -->
+        <div class="max-w-2xl mx-auto mt-8 p-4 rounded-2xl bg-amber-950/40 border border-amber-500/20 backdrop-blur-md">
+            <p class="text-xs uppercase tracking-widest text-amber-400/80 mb-2 font-semibold">Birlikte Geçen Zamanımız</p>
+            <div id="counter" class="grid grid-cols-4 gap-2 text-center">
+                <div class="bg-amber-900/30 p-2 rounded-lg border border-amber-500/20">
+                    <span id="days" class="text-2xl md:text-3xl font-bold text-amber-200 block">368</span>
+                    <span class="text-xs text-amber-400/70">Gün</span>
+                </div>
+                <div class="bg-amber-900/30 p-2 rounded-lg border border-amber-500/20">
+                    <span id="hours" class="text-2xl md:text-3xl font-bold text-amber-200 block">00</span>
+                    <span class="text-xs text-amber-400/70">Saat</span>
+                </div>
+                <div class="bg-amber-900/30 p-2 rounded-lg border border-amber-500/20">
+                    <span id="minutes" class="text-2xl md:text-3xl font-bold text-amber-200 block">00</span>
+                    <span class="text-xs text-amber-400/70">Dakika</span>
+                </div>
+                <div class="bg-amber-900/30 p-2 rounded-lg border border-amber-500/20">
+                    <span id="seconds" class="text-2xl md:text-3xl font-bold text-amber-200 block">00</span>
+                    <span class="text-xs text-amber-400/70">Saniye</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 relative z-20">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Side Polaroids (3 Cards) -->
+            <div class="order-1 lg:order-none lg:col-span-3 space-y-10 flex flex-col items-center lg:items-end lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+                
+                <!-- Polaroid 1 -->
+                <div class="polaroid w-64 -rotate-3 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="./İlk konserimiiz.jpeg" alt="Fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">İlk Konserimizz ✨</p>
+                </div>
+
+                <!-- Polaroid 1 -->
+                <div class="polaroid w-64 -rotate-3 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="./İlk uzak mesafe deneyimimiz.jpeg" alt="Fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">İlk Uzak Mesafe Deneyimimiz 🌍</p>
+                </div>
+
+                <!-- Polaroid 3 -->
+                <div class="polaroid w-64 -rotate-2 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="./Hem kalbimde hem cüzdanımdasın.jpeg" alt="Fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">Unutulmaz Anılar 💫</p>
+                </div>
+
+            </div>
+
+            <!-- Middle Letter Section -->
+            <div class="order-3 lg:order-none lg:col-span-6">
+                <div class="letter-card rounded-3xl p-6 md:p-10 relative">
+                    <div class="text-center mb-8">
+                        <span class="text-4xl">💌</span>
+                        <h2 class="text-3xl md:text-4xl font-serif-title font-bold text-amber-200 mt-2">
+                            Canım Sevgilime
+                        </h2>
+                        <div class="w-24 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto mt-3"></div>
+                    </div>
+
+                    <div class="space-y-4 text-stone-200 text-base md:text-lg leading-relaxed font-light">
+                        <p class="font-handwriting text-2xl text-amber-300">
+                            Öncelikle hayatımın anlamı, her şeyim, biricik sevgilim diyerek başlamak istiyorum bu konuşmaya.
+                        </p>
+                        <p>
+                            Seni, yani hayatımdaki en mükemmel insanı tanıyalı 1 yıl olmuş. Gerek çok güzel, gerek çok kötü, gerek gülüp eğlendiğimiz, gerek beraber ağladığımız koskoca bir sene oldu. Biz gerçekten ilişkiden kaçarken aşkı bulduk.
+                        </p>
+                        <p>
+                            Bu bir senede her seferinde kendine daha da aşık ettin beni. O an sebepsiz gelse de seni ilk görüşümden beri içimde olan kıpırtıları, o ilk gördüğümdeki sevgiyi ben bile açıklayamam. Ama sana o sevgiyi her gün daha da besleyip büyütüp kocaman yaptığını, beni sürekli daha da aşık ettiğini gurur ve mutlulukla söyleyebilirim😘.
+                        </p>
+                        <p>
+                            Gerçekten çok şey kattın, çok şey öğrettin bana; özellikle sevmek, hatta güzel ve doğru sevmek hakkında. Yeri geldi annem, yeri geldi en yakın arkadaşım, yeri geldi dert ortağım, sırdaşım, yeri geldi sevgilim... Kısaca HER ŞEYİM oldun bu görece kısa zamanda.
+                        </p>
+                        <p>
+                            Her bir gün, her bir uyku öncesinde bana geçmişin güzelliklerini düşündürtüp gelecek planları kurdurttun. Ne olursa olsun beni bırakmadın ve her zaman yanımda olmaya çalıştın; yeri geldi beni kendinden bile önceye koydun. Bu yüzden sana ne kadar teşekkür etsem de azdır.
+                        </p>
+                        <p>
+                            Belki şu güne kadar iyi bir adam olamadım ama senin adamın olmak yaptığım en güzel şeydi ve sayende artık olmak istediğim adam olma yolunda inanılmaz adımlar atıyorum. Bunun sebebi her adımda yanımda yürümen, o adımları birlikte atmamız. Umarım bu süreçte ben de seni bu kadar mutlu edebilmiş, bu kadar yanında olabilmişimdir (her ne kadar senin kadar olamadığımı düşünsem de, ama aramızda mükemmellik farkı var😉).
+                        </p>
+                        <p>
+                            Konuşmamın sonunu nasıl getireceğimi tam bilmesem de: Her şey için çok ama çok teşekkür ederim ve her şey için de çok ama çok özür dilerim; seni üzdüğüm, yanında olamadığım her an için. Sana söz veriyorum bunların hepsini telafi edeceğim ve üstüne koyarak ilerleyip kendi gözümde ve senin gözünde sana layık biri olacağım. Senin bana yaptığın gibi sana hep <em class="text-amber-300">"iyi ki"</em> dedirtecek ve asla <em class="text-amber-400">"maalesef"</em> dedirtmeyeceğim.
+                        </p>
+                        
+                        <div class="my-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center font-handwriting text-2xl md:text-3xl text-amber-200 leading-snug">
+                            Kısaca: İYİ Kİ VARSIN HAYATIMIN ANLAMI 😘<br>
+                            İYİ Kİ TANIŞMIŞIZ 😍 İYİ Kİ SEVMİŞİZ 🥰<br>
+                            İYİ Kİ ÇABALAMIŞIZ ❤️ İYİ Kİ BİZİZ🥹💋😘😍🥰❤️🥺
+                        </div>
+
+                        <p>
+                            "İYİ Kİ"lerle, mutluluklarla, sevgiyle, güvenle ve şefkatle dolu nice senelerimiz olur inşallah. Çünkü her gün hayalimde, rüyamda, duamda bunlar var 🙃
+                        </p>
+
+                        <p class="text-center text-2xl md:text-3xl font-romantic text-amber-300 pt-4 font-bold">
+                            SENİ ÇOOKKK  AMA ÇOOKKK SEVİYORUUMMMM😘😍🥰💋❤️
+                        </p>
+
+                        <!-- Sürpriz Butonu -->
+                        <div class="text-center pt-6">
+                            <button id="surprise-btn" class="px-8 py-3 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-stone-900 font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                                ✨ Sana Küçük Bir Sürprizim Var 🌸
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Polaroids (3 Cards) -->
+            <div class="order-2 lg:order-none lg:col-span-3 space-y-10 flex flex-col items-center lg:items-start lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+                
+                                <!-- Polaroid 1 -->
+                <div class="polaroid w-64 -rotate-3 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="./Mükemmel storyler.jpeg" alt="Fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">Mükemmel storyler ✨</p>
+                </div>
+
+                <!-- Polaroid 2 -->
+                <div class="polaroid w-64 -rotate-3 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="Çiçeği süsleyen güzelliğin.jpeg" alt="Fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">Çiçeği süsleyen güzelliğin ✨</p>
+                </div>
+
+                <!-- Polaroid 4 -->
+                <div class="polaroid w-64 rotate-3 rounded-sm text-center">
+                    <div class="w-full h-56 bg-stone-100 rounded overflow-hidden flex items-center justify-center">
+                        <img src="Gülüşün ömrüme bedel.jpeg" alt="hFotoğraf" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-stone-800 mt-3 font-bold">Sonsuza Dek Biz 💖</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Sürpriz Modal -->
+    <div id="surprise-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-500">
+        <div id="modal-content" class="letter-card max-w-lg w-full p-8 rounded-3xl text-center relative border border-rose-400/40 transform scale-90 transition-all duration-500">
+            <button id="close-modal" class="absolute top-4 right-4 text-rose-300 hover:text-white text-2xl font-bold p-1">✕</button>
+            <span class="text-6xl mb-4 block animate-bounce">🌸💐🌹</span>
+            <h3 class="text-3xl font-serif-title font-bold text-rose-200 mb-4 glow-text">
+                Sen Hayatımı Böyle Değiştirdin... ✨
+            </h3>
+            <p class="font-handwriting text-2xl text-rose-100/90 leading-relaxed mb-6">
+                Hayatımda olduğun her gün dünyamı renklendirdin, çiçek açtırdın. Seni çok seviyorum sevgilim! ❤️
+            </p>
+            <button id="modal-confetti-btn" class="px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg transition-all">
+                Konfetiiii 🌸
+            </button>
+        </div>
+    </div>
+
+    <!-- Music Player Widget -->
+    <div class="fixed bottom-4 right-4 z-40 bg-stone-900/90 border border-amber-500/30 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <button id="music-btn" class="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center hover:bg-amber-500 transition-colors">
+            ▶️
+        </button>
+        <div class="text-xs">
+            <span class="block font-semibold text-amber-200">Bizim Şarkımız 🎵</span>
+            <span id="music-status" class="text-amber-400/70">Müziği Başlat</span>
+        </div>
+    </div>
+
+    <script>
+        // Counter logic
+        const anniversaryDate = new Date();
+        anniversaryDate.setFullYear(anniversaryDate.getFullYear() - 1); // 1 year ago default
+        anniversaryDate.setDate(anniversaryDate.getDate() - 3);
+
+        function updateCounter() {
+            const now = new Date();
+            const diff = now - anniversaryDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minsEl = document.getElementById('minutes');
+            const secsEl = document.getElementById('seconds');
+
+            if (daysEl) daysEl.innerText = days;
+            if (hoursEl) hoursEl.innerText = String(hours).padStart(2, '0');
+            if (minsEl) minsEl.innerText = String(minutes).padStart(2, '0');
+            if (secsEl) secsEl.innerText = String(seconds).padStart(2, '0');
+        }
+        setInterval(updateCounter, 1000);
+        updateCounter();
+
+        // Canvas Particles Logic
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        let isFlowerTheme = false;
+
+        const autumnColors = ['#d97706', '#b45309', '#78350f', '#f59e0b', '#92400e'];
+        const flowerColors = ['#f43f5e', '#fb7185', '#fda4af', '#f472b6', '#ec4899', '#ffe4e6', '#fbbf24'];
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -20;
+                this.size = Math.random() * (isFlowerTheme ? 12 : 10) + 6;
+                this.speedY = Math.random() * 1.5 + 0.8;
+                this.speedX = Math.random() * 1.2 - 0.6;
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 2 - 1;
+                const palette = isFlowerTheme ? flowerColors : autumnColors;
+                this.color = palette[Math.floor(Math.random() * palette.length)];
+                this.isPetal = isFlowerTheme;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y / 25) + this.speedX;
+                this.angle += this.spin;
+
+                if (this.y > canvas.height + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.angle * Math.PI) / 180);
+                ctx.fillStyle = this.color;
+
+                if (this.isPetal) {
+                    // Petal shape
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
+                    ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size / 2, 0, 0);
+                    ctx.fill();
+                } else {
+                    // Leaf shape
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, this.size, this.size / 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 45; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Surprise Button & Modal Logic
+        const surpriseBtn = document.getElementById('surprise-btn');
+        const modal = document.getElementById('surprise-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModal = document.getElementById('close-modal');
+        const modalConfettiBtn = document.getElementById('modal-confetti-btn');
+
+        function fireFlowerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 90,
+                    origin: { y: 0.5 },
+                    colors: ['#f43f5e', '#fb7185', '#ec4899', '#f472b6', '#fbbf24', '#ffffff']
+                });
+            }
+        }
+
+        if (surpriseBtn) {
+            surpriseBtn.addEventListener('click', () => {
+                isFlowerTheme = true;
+                document.body.classList.add('flower-theme');
+                if (modalContent) modalContent.classList.add('flower-bloom');
+                
+                // Reset particles to petals
+                particles.forEach(p => p.reset());
+
+                if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+                if (modalContent) {
+                    modalContent.classList.remove('scale-90');
+                    modalContent.classList.add('scale-100');
+                }
+                fireFlowerConfetti();
+            });
+        }
+
+        function hideModal() {
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+            if (modalContent) {
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-90');
+            }
+        }
+
+        if (closeModal) closeModal.addEventListener('click', hideModal);
+        if (modalConfettiBtn) modalConfettiBtn.addEventListener('click', fireFlowerConfetti);
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) hideModal();
+            });
+        }
+
+        // Web Audio API ambient music player
+        let audioCtx = null;
+        let isPlaying = false;
+        const musicBtn = document.getElementById('music-btn');
+        const musicStatus = document.getElementById('music-status');
+
+        function playRomanticMelody() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (isPlaying) {
+                audioCtx.suspend();
+                isPlaying = false;
+                if (musicBtn) musicBtn.innerText = '▶️';
+                if (musicStatus) musicStatus.innerText = 'Müziği Başlat';
+                return;
+            }
+
+            audioCtx.resume();
+            isPlaying = true;
+            if (musicBtn) musicBtn.innerText = '⏸️';
+            if (musicStatus) musicStatus.innerText = 'Müzik Çalıyor ❤️';
+
+            // Simple ambient melody loop
+            const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23]; // C4, E4, G4, C5, A4, F4
+            let noteIdx = 0;
+
+            function playNote() {
+                if (!isPlaying) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(notes[noteIdx], audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 2.5);
+
+                noteIdx = (noteIdx + 1) % notes.length;
+                setTimeout(playNote, 1200);
+            }
+            playNote();
+        }
+
+        if (musicBtn) {
+            musicBtn.addEventListener('click', playRomanticMelody);
+        }
+    </script>
+</body>
+</html>
